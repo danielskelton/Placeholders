@@ -1,0 +1,130 @@
+//This is for setting up notifications with users
+<dependency>
+    <groupId>com.microsoft.sqlserver</groupId>
+    <artifactId>mssql-jdbc</artifactId>
+    <version>9.4.0.jre11</version> <!-- Use the latest version available -->
+</dependency>
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DatabaseConnection {
+    private static final String url = "jdbc:sqlserver://your_server:your_port;databaseName=your_database";
+    private static final String username = "your_username";
+    private static final String password = "your_password";
+
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, username, password);
+    }
+}
+
+public class User {
+    private String userId;
+    private boolean isSafe;
+
+    // Constructor, getters, and setters
+}
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Group {
+    private List<User> users;
+
+    public Group() {
+        this.users = new ArrayList<>();
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    // Other methods for managing users in the group
+}
+public class User {
+    // ...
+
+    public void sendPing() {
+        // Perform actions when a user sends a ping
+        // For example, update the last ping timestamp or set the user as safe
+        this.isSafe = true;
+    }
+}
+// Example of handling user input in a hypothetical app
+User currentUser = // Get the current user
+currentUser.sendPing();
+// Example of updating group status
+Group userGroup = // Get the user group
+userGroup.updateGroupStatus();
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class UserDao {
+    public User getCurrentUser() {
+        User currentUser = null;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ?")) {
+            preparedStatement.setString(1, "current_username"); // Replace with your logic to get the current username
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    // Assuming User class has a constructor that takes ResultSet and maps it to User object
+                    currentUser = new User(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle the exception appropriately in your application
+        }
+
+        return currentUser;
+    }
+}
+UserDao userDao = new UserDao();
+User currentUser = userDao.getCurrentUser();
+
+if (currentUser != null) {
+    currentUser.sendPing();
+}
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+public class NotificationExample extends Application {
+
+    private static final Duration NOTIFICATION_DURATION = Duration.seconds(5); // Set the duration here
+
+    @Override
+    public void start(Stage primaryStage) {
+        Label notification = new Label("This is a notification");
+        notification.setStyle("-fx-background-color: #ffff99; -fx-padding: 10px;");
+        StackPane.setAlignment(notification, Pos.TOP_CENTER);
+
+        StackPane root = new StackPane(notification);
+        root.setStyle("-fx-background-color: transparent;");
+
+        Scene scene = new Scene(root, 300, 200);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        // Create a timeline to automatically close the notification after a delay
+        Timeline timeline = new Timeline(new KeyFrame(NOTIFICATION_DURATION, event -> {
+            notification.setVisible(false);
+            primaryStage.close(); // Close the stage if desired
+        }));
+        timeline.play();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
